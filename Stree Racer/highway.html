@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Race</title>
+       <style>
+        *{margin:0;padding: 0;}
+        .hide{display: none;}
+        .carGame
+        {
+            width: 100%;
+            height: 100vh;
+            background-image: url('bg6.png');
+            
+            /*background-image: url('road2.gif');
+            */background-repeat: no-repeat;
+            background-size: 100% 100%;    
+        }
+        .car
+        {
+            width: 45px;height: 90px;/*background: red;*/bottom: 120px;position: absolute; 
+            /*background-image:url('car4mod.png');*/background-image:url('e1.png');
+            /*border-radius: 16px;*/
+            background-repeat: no-repeat;background-size: 100% 100%;
+        }
+        .enemy
+        {
+            width: 45px;height: 90px;bottom: 120px;position: absolute;background-image:url('e4.png');
+            background-repeat: no-repeat;background-size: 100% 100%;/*border-radius: 16px;*/
+            /*width: 50px;height: 70px;background: blue;position: absolute; bottom: 120px;*/  
+        }
+        .gamearea
+        {
+            width: 400px;
+            height: 100vh;
+            background-color: #1e272e;
+            /*z-index: 1;*/
+            margin: auto;
+            position: relative;
+            overflow: hidden;
+            border-right: 7px dashed #c8d6e5;
+            border-left: 7px dashed #c8d6e5;
+        }
+        .line
+        {
+            width: 10px;
+            height: 90px;
+            background: white;
+            position: absolute;
+            margin-left: 195px;
+        }
+        .scorecard
+        {
+        top: 15px;
+        left: 40px;
+        position: absolute;
+        background: #10ac84;
+        width: 300px;
+        line-height: 70px;
+        color: white;
+        /*height: 70px;*/   
+        font-size: 1.5em;
+        text-align: center;
+        box-shadow: 0 5px 5px #777;
+        }
+        .startscreen
+        {
+            position: absolute;
+            background-color: #ee5253;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);/*these 3 help in bring one div centre to other div*/
+            color: white;
+            z-index: 1;/*so that it remains above another div*/
+            text-align: center;
+            border: 1px solid #ff6b6b;
+            padding: 15px/*from all sides*/
+            margin:auto;/*center*/
+            width: 50%;
+            cursor: pointer;
+            letter-spacing: 5px;
+            font-size: 20px;
+            word-spacing: 3px;
+            line-height: 30px;
+            text-transform: uppercase;
+            box-shadow: 0 5px 5px #777;
+        }
+        /*@-webkit-keyframes mymove
+        {
+            from {padding-top: 0px;}
+            to {padding-top: 200px;color: white;}
+        }*/
+    </style>
+</head>
+<body><!-- 100vh gives full height of screen -->
+    <!-- widows property is good do search 
+        box-shadow- horizontal option vertical option blur color -->
+    <div class="carGame">
+        <div class="scorecard"></div>
+            <div class="startscreen">
+                <p>
+                    Press here to Start<br>
+                    Arrow keys are used to move<br>
+                    If you are even 1 cm close <br>You LOSE
+                </p>
+            </div>
+        <div class="gamearea "></div>
+    </div>
+
+    <script>
+        const score=document.querySelector('.scorecard');
+        const startscreen=document.querySelector('.startscreen');//popup screen
+        const gamearea=document.querySelector('.gamearea');
+        //console.log(gamearea);
+        //const count=document.querySelector('.countdown');
+
+        let keys={ArrowUp:false,ArrowDown:false,ArrowRight:false,ArrowLeft:false}
+        startscreen.addEventListener('click',start);//start is call back fucn called on clicking the startscreen popup box
+        const player={speed:5,score:0};
+
+        document.addEventListener('keydown',keydown);//whenever an key on keyboard is pressed function keydown is called
+        document.addEventListener('keyup',keyup);
+
+        function start()
+        {
+            //startscreen.style.WebkitAnimation="mymove 4s";
+            //gamearea.classList.remove('hide');
+            startscreen.classList.add('hide');
+            gamearea.innerHTML='';
+            player.start=true;
+            player.score=0;
+            //count.style.WebkitAnimation="mymove 4s";
+        /*    count.addEventListener("webkitAnimationStart", ()=>
+                {
+                    for(var x=3;x>0;x++)
+                        this.innerText=x;
+                    this.innerText='GO';
+                });
+            count.addEventListener("webkitAnimationEnd",()=>
+            {
+            window.requestAnimationFrame(playgame);    
+            })
+          */  
+          window.requestAnimationFrame(playgame);
+            for(var x=0;x<6;x++)
+            {
+                let rdline=document.createElement('div');
+                rdline.setAttribute('class','line');
+                rdline.y=(x*125);
+                rdline.style.top=rdline.y+"px";
+                gamearea.appendChild(rdline);
+            }
+            let car=document.createElement('div');
+            car.setAttribute('class','car');
+            gamearea.appendChild(car);
+
+            player.x=car.offsetLeft;
+            player.y=car.offsetTop;            
+
+            //console.log("top "+car.offsetTop);
+            //console.log("Left "+car.offsetLeft);
+            for(var x=0;x<5;x++)
+            {
+//                let e2=document.createElement('div');
+                let enemycar=document.createElement('div');
+                enemycar.setAttribute('class','enemy');
+  //              e2.setAttribute('class','enemy');
+    //            e2.y=((x+1)*350)*-1;
+                enemycar.y=((x+1)*350)*-1;
+      //          e2.style.top=e2.y+"px";
+                enemycar.style.top=enemycar.y+"px";
+         //       enemycar.style.backgroundColor='blue';
+        //        e2.style.left=Math.floor(Math.random()*195)+"px";
+                enemycar.style.left=(Math.floor(Math.random()*(350-195))+195)+"px";
+                /*if(enemycar.style.left<195)
+                    enemycar.style.background-image=url('e2.png');
+                else
+                    enemycar.style.background-image=url('e1.png');
+                *///background-image:url('e1.png');
+               // gamearea.appendChild(e2);
+                gamearea.appendChild(enemycar);
+            }    
+        }
+
+        function endgame()
+        {
+            player.start=false;
+            startscreen.classList.remove('hide');
+            score.innerHTML=' ';
+            startscreen.innerHTML='GAME OVER!!<br>Your Final Score is '+player.score+"<br>Press here to restart the Game!!";
+        }
+
+        function iscollide(a,b)
+        {
+            aRect=a.getBoundingClientRect();
+            bRect=b.getBoundingClientRect();
+
+            return !((aRect.bottom<bRect.top)||(aRect.top>bRect.bottom)||(aRect.left>bRect.right)||(aRect.right<bRect.left))
+        }
+
+        function moveenemy(car)
+        {
+            let enemy=document.querySelectorAll('.enemy');
+          //  for(var i=0;i<5;i++)console.log(lines.y);
+            enemy.forEach(function(item)
+            {
+                if(iscollide(car,item))
+                {
+                    console.log("BOOM HIT!");
+                    endgame();
+                }
+                //console.log(item.y);
+                if(item.y>=585)
+                {
+                    item.y=-300;
+                    //item.y-=630;
+                    item.style.left=Math.floor(Math.random()*350)+"px";
+                }
+
+                item.y+=player.speed;
+                item.style.top=item.y+"px";
+            })
+        }
+        function movelines()
+        {
+            let lines=document.querySelectorAll('.line');
+          //  for(var i=0;i<5;i++)console.log(lines.y);
+            lines.forEach(function(item)
+            {
+                //console.log(item.y);
+                if(item.y>=557)
+                    item.y-=657;
+                item.y+=player.speed;
+                item.style.top=item.y+"px";
+            })
+        }
+        //startscreen.addEventListener("webkitAnimationStart", myStartFunction);
+        
+        //startscreen.addEventListener("webkitAnimationEnd", myEndFunction);
+//!!!!!!!!!!!!!!!!!!!!!!!!!!NOT USED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        function myEndFunction()//this function runs when animation ends 
+        { 
+            startscreen.classList.add('hide');//my pop up screen hides
+            gamearea.classList.remove('hide');//and startscreen starts
+        }
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!USED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        function playgame()
+        {
+           // console.log("Hey i was clicked");
+            let car=document.querySelector('.car');
+            let road=gamearea.getBoundingClientRect();
+            //console.log(road);
+            if(player.start)
+            {
+                movelines();
+                moveenemy(car);
+                if(keys.ArrowUp && player.y>50){player.y -=player.speed}
+                if(keys.ArrowDown && player.y<(road.bottom-90)){player.y +=player.speed}
+                if(keys.ArrowLeft && player.x>0){player.x -=player.speed}
+                if(keys.ArrowRight && player.x<(road.width-50)){player.x +=player.speed}  
+                car.style.top=player.y+"px";
+                car.style.left=player.x+"px"; 
+                //console.log(player.x); value is 0 as cra is realtive to road
+                //console.log(player.y);
+
+                window.requestAnimationFrame(playgame);
+                //console.log(player.score++);
+                player.score++;
+                let ps=player.score-1;
+                score.innerText="Score:"+ps;
+            }
+        }
+
+        function keydown(event)//event says which key is pressed and we get the key value by using 'event.key'.
+        {
+            event.preventDefault();  //This prevents use of that event
+            keys[event.key]=true;
+            //console.log(event.key);
+       //     console.log(keys);
+        }
+        function keyup(event)
+        {
+            event.preventDefault();
+            keys[event.key]=false;
+            //console.log(event.key);
+         //   console.log(keys);
+        }
+    </script>
+</body>
+</html>
+
+<!--
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Race</title>
+
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.0.0/animate.min.css"/>
+    <style>
+        *{margin:0;padding: 0;}
+        .hide{display: none;}
+        .car
+        {
+            width: 50px;height: 70px;background: red;bottom: 120px;position: absolute;
+        }
+        .enemy
+        {
+            width: 50px;height: 70px;background: blue;position: absolute;   
+        }
+        .gamearea
+        {
+            width: 400px;
+            height: 100vh;
+            background-color: #2f3640;
+            margin: auto;
+            position: relative;
+        }
+        .line
+        {
+            width: 10px;
+            height: 90px;
+            background: white;
+            position: absolute;
+            margin-left: 195px;
+        }
+        .scorecard
+        {
+        top: 15px;
+        left: 40px;
+        position: absolute;
+        background: yellow;
+        width: 300px;
+        line-height: 70px;
+        /*height: 70px;*/   
+        font-size: 1.5em;
+        text-align: center;
+        box-shadow: 0 5px 5px #777;
+        }
+        .startscreen
+        {
+            position: absolute;
+            background-color: #ee5253;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);/*these 3 help in bring one div centre to other div*/
+            color: white;
+            z-index: 1;/*so that it remains above another div*/
+            text-align: center;
+            border: 1px solid #ff6b6b;
+            padding: 15px/*from all sides*/
+            margin:auto;/*center*/
+            width: 50%;
+            cursor: pointer;
+            letter-spacing: 5px;
+            font-size: 20px;
+            word-spacing: 3px;
+            line-height: 30px;
+            text-transform: uppercase;
+            box-shadow: 0 5px 5px #777;
+        }
+        .countdown
+        {
+            position: absolute;
+            /*background-color: #ee5253;
+            */top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);/*these 3 help in bring one div centre to other div*/
+            color: white;
+            z-index: 1;/*so that it remains above another div*/
+            text-align: center;
+            /*border: 1px solid #ff6b6b;
+            */padding: 15px/*from all sides*/
+            margin:auto;/*center*/
+            width: 50%;
+            /*cursor: pointer;
+            letter-spacing: 5px;
+            font-size: 20px;
+            word-spacing: 3px;
+            line-height: 30px;
+            text-transform: uppercase;
+            box-shadow: 0 5px 5px #777;   
+        */}
+
+        /*@-webkit-keyframes mymove
+        {
+            from {padding-top: 0px;}
+            to {padding-top: 200px;color: white;}
+        }*/
+    </style>
+</head>
+<body> 100vh gives full height of screen 
+     widows property is good do search 
+        box-shadow- horizontal option vertical option blur color 
+    <div class="carGame">
+        <vdiv class="scorecard"></div>
+            <div class="startscreen">
+                <p>
+                    Press here to Start<br>
+                    Arrow keys are used to move<br>
+                    If you hit another car you lose
+                </p>
+            </div>
+            <div class="countdown animate__bounceOut"></div>
+        <div class="gamearea "></div>
+    </div>
+
+    <script>
+        const score=document.querySelector('.scorecard');
+        const startscreen=document.querySelector('.startscreen');//popup screen
+        const gamearea=document.querySelector('.gamearea');
+        //console.log(gamearea);
+        const count=document.querySelector('.countdown');
+
+        let keys={ArrowUp:false,ArrowDown:false,ArrowRight:false,ArrowLeft:false}
+        startscreen.addEventListener('click',start);//start is call back fucn called on clicking the startscreen popup box
+        const player={speed:5,score:0};
+
+        document.addEventListener('keydown',keydown);//whenever an key on keyboard is pressed function keydown is called
+        document.addEventListener('keyup',keyup);
+
+        function start()
+        {
+            //startscreen.style.WebkitAnimation="mymove 4s";
+            //gamearea.classList.remove('hide');
+            startscreen.classList.add('hide');
+            gamearea.innerHTML='';
+            player.start=true;
+            player.score=0;
+            //count.style.WebkitAnimation="mymove 4s";
+            count.addEventListener("webkitAnimationStart", ()=>
+                {
+                    for(var x=3;x>0;x++)
+                        this.innerText=x;
+                    this.innerText='GO';
+                });
+            count.addEventListener("webkitAnimationEnd",()=>
+            {
+            window.requestAnimationFrame(playgame);    
+            })
+            
+
+            for(var x=0;x<6;x++)
+            {
+                let rdline=document.createElement('div');
+                rdline.setAttribute('class','line');
+                rdline.y=(x*125);
+                rdline.style.top=rdline.y+"px";
+                gamearea.appendChild(rdline);
+            }
+            let car=document.createElement('div');
+            car.setAttribute('class','car');
+            gamearea.appendChild(car);
+
+            player.x=car.offsetLeft;
+            player.y=car.offsetTop;            
+
+            //console.log("top "+car.offsetTop);
+            //console.log("Left "+car.offsetLeft);
+            for(var x=0;x<4;x++)
+            {
+                let enemycar=document.createElement('div');
+                enemycar.setAttribute('class','enemy');
+                enemycar.y=((x+1)*350)*-1;
+                enemycar.style.top=enemycar.y+"px";
+                //enemycar.style.background='blue';
+                enemycar.style.left=Math.floor(Math.random()*350)+"px";
+
+                gamearea.appendChild(enemycar);
+            }    
+        }
+
+        function endgame()
+        {
+            player.start=false;
+            startscreen.classList.remove('hide');
+        }
+
+        function iscollide(a,b)
+        {
+            aRect=a.getBoundingClientRect();
+            bRect=b.getBoundingClientRect();
+
+            return !((aRect.bottom<bRect.top)||(aRect.top>bRect.bottom)||(aRect.left>bRect.right)||(aRect.right<bRect.left))
+        }
+
+        function moveenemy(car)
+        {
+            let enemy=document.querySelectorAll('.enemy');
+          //  for(var i=0;i<5;i++)console.log(lines.y);
+            enemy.forEach(function(item)
+            {
+                if(iscollide(car,item))
+                {
+                    console.log("BOOM HIT!");
+                    endgame();
+                }
+                //console.log(item.y);
+                if(item.y>=580)
+                {
+                    item.y=-300;
+                    //item.y-=630;
+                    item.style.left=Math.floor(Math.random()*350)+"px";
+                }
+
+                item.y+=player.speed;
+                item.style.top=item.y+"px";
+            })
+        }
+
+        function movelines()
+        {
+            let lines=document.querySelectorAll('.line');
+          //  for(var i=0;i<5;i++)console.log(lines.y);
+            lines.forEach(function(item)
+            {
+                //console.log(item.y);
+                if(item.y>=557)
+                    item.y-=657;
+                item.y+=player.speed;
+                item.style.top=item.y+"px";
+            })
+        }
+        //startscreen.addEventListener("webkitAnimationStart", myStartFunction);
+        
+        //startscreen.addEventListener("webkitAnimationEnd", myEndFunction);
+//!!!!!!!!!!!!!!!!!!!!!!!!!!NOT USED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        function myEndFunction()//this function runs when animation ends 
+        { 
+            startscreen.classList.add('hide');//my pop up screen hides
+            gamearea.classList.remove('hide');//and startscreen starts
+        }
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!USED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        function playgame()
+        {
+           // console.log("Hey i was clicked");
+            let car=document.querySelector('.car');
+            let road=gamearea.getBoundingClientRect();
+            //console.log(road);
+            if(player.start)
+            {
+                movelines();
+                moveenemy(car);
+                if(keys.ArrowUp && player.y>50){player.y -=player.speed}
+                if(keys.ArrowDown && player.y<(road.bottom-70)){player.y +=player.speed}
+                if(keys.ArrowLeft && player.x>0){player.x -=player.speed}
+                if(keys.ArrowRight && player.x<(road.width-50)){player.x +=player.speed}  
+                car.style.top=player.y+"px";
+                car.style.left=player.x+"px"; 
+                //console.log(player.x); value is 0 as cra is realtive to road
+                //console.log(player.y);
+
+                window.requestAnimationFrame(playgame);
+                //console.log(player.score++);
+                player.score++;
+                score.innerText="Score:"+player.score;
+            }
+        }
+
+        function keydown(event)//event says which key is pressed and we get the key value by using 'event.key'.
+        {
+            event.preventDefault();  //This prevents use of that event
+            keys[event.key]=true;
+            //console.log(event.key);
+       //     console.log(keys);
+        }
+        function keyup(event)
+        {
+            event.preventDefault();
+            keys[event.key]=false;
+            //console.log(event.key);
+         //   console.log(keys);
+        }
+    </script>
+</body>
+</html>
+-->

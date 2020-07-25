@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Select Mode for Car Race</title>
+	<link href="https://fonts.googleapis.com/css2?family=Charmonman:wght@700&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Anton&family=Ceviche+One&family=Creepster&family=Kaushan+Script&display=swap" rel="stylesheet">
+	<style>
+		*{margin: 0px;padding: 0px;}
+		.mode{
+			background-image: url('modeback.png');
+			background-position: center;
+			background-repeat: no-repeat;
+			background-size: 100% 100%;
+			height: 100vh;
+			/*position: absolute;
+			*/width: 100%;
+			overflow: hidden;
+		}
+		.select
+		{
+			font-size: 150px;
+			top: 30px;
+			color: #c23616;
+			margin-left: 150px;
+			font-family: 'Kaushan Script', cursive;
+			/*font-family: 'Charmonman', cursive;
+		*/}
+		.m1
+		{
+			background-image: url('bg7.png');
+			z-index: 1;
+			width: 396px;
+			height: 240px;
+			position: absolute;
+			border: 1px solid #ff6b6b;
+			top: 25%;
+            left: 50%;
+            /*width: 100%;
+            */cursor: pointer;
+            transform: translate(-110%,100%);
+            opacity: 1;
+  		display: block;
+  		transition: .5s ease;
+  		backface-visibility: hidden;
+		
+		}
+		.m2
+		{
+			background-image: url('mode2.png');
+			z-index: 1;
+			width: 412px;
+			height: 240px;
+			position: absolute;
+			border: 1px solid #ff6b6b;
+			top: 25%;
+            left: 50%;
+            /*width: 100%;
+            */cursor: pointer;
+            transform: translate(0%,100%);
+            opacity: 1;
+  		display: block;
+  		transition: .5s ease;
+  		backface-visibility: hidden;
+		
+		}
+.text {
+  transition: .5s ease;
+  opacity: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  text-align: center;
+}
+/*
+.container:hover .image {
+  opacity: 0.3;
+}
+*/
+.container:hover .text {
+  opacity: 1;
+}
+.text {
+  background-color: #4CAF50;
+  color: white;
+  font-size: 16px;
+  padding: 16px 32px;
+  text-decoration: none;
+}
+	</style>
+</head>
+<body>
+	<div class="mode"><p class="select">Select The Mode</p></div>
+	<div class="container">
+	<div class="m1"><a href="highway.html" class="text">Highwayy</a></div>
+	<div class="m2"><a href="beach.html" class="text">beach</a></div>	
+	</div>
+	
+</body>
+</html>
